@@ -51,8 +51,10 @@ class FixedWindowCounter:
 
             if row is None:
                 cursor.execute(
-                    "INSERT INTO limits VALUES (?, ?, ?)", (ip, 1, current_time)
+                    "INSERT INTO limits (ip, count, start_time) VALUES (?, ?, ?)",
+                    (ip, 1, current_time),
                 )
+                conn.commit()
                 return True
 
             count, start_time = row
