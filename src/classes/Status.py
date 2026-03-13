@@ -1,11 +1,11 @@
 from fastapi import HTTPException
 
 
-class StatusCode:
+class Status:
 
     @staticmethod
-    def error_code():
-        return HTTPException(
+    def raise_rate_limit_error():
+        raise HTTPException(
             status_code=429,
             detail="Too many requests",
         )
