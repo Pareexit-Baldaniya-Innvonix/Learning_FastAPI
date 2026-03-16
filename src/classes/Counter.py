@@ -1,6 +1,7 @@
 import time
 import sqlite3
-from config.constants import DB_NAME
+from fastapi import Request
+from src.config.constants import DB_NAME
 
 
 class Counter:
@@ -11,7 +12,7 @@ class Counter:
 
     def _prepare_db(self):
         # create a table
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             conn.execute(
                 """ 
                     CREATE TABLE IF NOT EXISTS rate_limits(
@@ -21,21 +22,25 @@ class Counter:
                     )
                 """
             )
+            conn.commit()
 
-    def get_ip(self, request):
+    def get_ip(self, request: Request) -> str:
         return request.client.host
 
     def allow_request(self, ip: str) -> bool:
         current_time = time.time()
 
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             # inserting record in the database table
             cursor = conn.cursor()
-            cursor.execute("SELECT request_count, window_start_time FROM rate_limits WHERE client_ip = ?", (ip,))
+            cursor.execute(
+                "SELECT request_count, window_start_time FROM rate_limits WHERE client_ip = ?",
+                (ip,),
+            )
             row = cursor.fetchone()
 
             if row is None:
-                print(f"\nDEBUG: New IP {ip} at {window_start_time}. Initializing tracker.")
+                print(f"\nDEBUG: New IP {ip} at {current_time}.")
                 cursor.execute(
                     "INSERT INTO rate_limits (client_ip, request_count, window_start_time) VALUES (?, ?, ?)",
                     (ip, 1, current_time),
@@ -54,16 +59,18 @@ class Counter:
                 )
                 conn.commit()
                 return True
-            elif request_count < self.limit:
+
+            if request_count < self.limit:
                 # increment request_count
                 print(
                     f"\nDEBUG: IP {ip} has {request_count + 1}/{self.limit} requests at {current_time}."
                 )
                 cursor.execute(
-                    "UPDATE rate_limits SET request_count = request_count + 1 WHERE client_ip = ?", (ip,)
+                    "UPDATE rate_limits SET request_count = request_count + 1 WHERE client_ip = ?",
+                    (ip,),
                 )
                 conn.commit()
                 return True
-            else:
-                print(f"\nDEBUG: RATE LIMIT EXCEEDED for {ip} at {current_time}!")
-                return False
+
+            print(f"\nDEBUG: RATE LIMIT EXCEEDED for {ip} at {current_time}!")
+            return False

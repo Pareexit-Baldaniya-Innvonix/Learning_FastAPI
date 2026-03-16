@@ -7,5 +7,5 @@ class Status:
     def raise_rate_limit_error():
         raise HTTPException(
             status_code=429,
-            detail="Too many requests",
+            detail="429 Too many requests",
         )

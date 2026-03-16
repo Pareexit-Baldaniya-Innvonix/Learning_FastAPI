@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends
-from utils.dependencies import check_rate_limit
+from src.utils.dependencies import check_rate_limit
 
 app = FastAPI()
 
@@ -10,5 +10,6 @@ def read_root():
 
 
 @app.get("/", dependencies=[Depends(check_rate_limit)])  # API route
-def greet(request: Request):
-    return {"hello": "world", "ip": request.client.host}
+def home(request: Request):
+    client_id = request.client.host
+    return {"message": f"Hello, user {client_id} !!"}
