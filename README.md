@@ -5,7 +5,7 @@ Learning and completing all FastAPI tasks in this repository.
 For running the code need to add `uvicorn` and then need to follow this steps:
 1. open terminal
 2. set the file url to that place where main file located
-3. run this code through the `debugger` or try
+3. run this code through:
     
     Terminal-1:
     - `uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload`

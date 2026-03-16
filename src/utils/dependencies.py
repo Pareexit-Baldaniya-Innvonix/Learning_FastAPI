@@ -1,7 +1,8 @@
 from fastapi import Request
 from src.classes.Counter import Counter
-from src.classes.Settings import settings
 from src.classes.Status import Status
+from src.classes.Settings import settings
+
 
 limiter = Counter(limit=settings.REQUEST_PER_SECOND, seconds=1)
 
