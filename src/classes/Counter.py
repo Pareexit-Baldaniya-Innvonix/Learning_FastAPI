@@ -12,7 +12,7 @@ class Counter:
 
     def _prepare_db(self):
         # create a table
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
+        with sqlite3.connect(DB_NAME) as conn:
             conn.execute(
                 """ 
                     CREATE TABLE IF NOT EXISTS rate_limits(
@@ -30,7 +30,7 @@ class Counter:
     def allow_request(self, ip: str) -> bool:
         current_time = time.time()
 
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
+        with sqlite3.connect(DB_NAME) as conn:
             # inserting record in the database table
             cursor = conn.cursor()
             cursor.execute(
