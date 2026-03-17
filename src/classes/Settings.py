@@ -4,7 +4,7 @@ import os
 class Settings(BaseSettings):
     # model_config = SettingsConfigDict(validate_default=False)
 
-    REQUEST_PER_SECOND: int = os.getenv("REQUEST_PER_SECOND", 15)
+    REQUEST_PER_SECOND: int = os.getenv("REQUEST_PER_SECOND", 20)
 
 
 settings = Settings()

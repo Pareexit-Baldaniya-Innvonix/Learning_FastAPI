@@ -9,7 +9,7 @@ def test_api():
         try:
             response = requests.get(url)
             if response.status_code == 200:
-                print(f"Request {i+1} Allowed: 200")
+                print(f"Request {i+1} Allowed: 200 Ok")
             elif response.status_code == 429:
                 print(f"Request {i+1} Denied: {response.json().get('detail')}")
             else:
