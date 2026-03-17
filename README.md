@@ -1,52 +1,115 @@
-# FastAPI
-Learning and completing all FastAPI tasks in this repository.
+# FastAPI Rate Limiter
+A FastAPI rate limiter is a mechanism used to control the number of requests a client (i.e user or IP address) can make to a FastAPI application within a specific time period.
 
-## How to run the code
-For running the code need to add `uvicorn` and then need to follow this steps:
-1. open terminal
-2. set the file url to that place where main file located
-3. run this code through:
-    
-    Terminal-1:
-    - `uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload`
-    - --reload used for auto reload the file
-    - once the server is started do next step...
+When the limit exceeded, algorithm automatically returns '429 Too Many Requests' error and after certain amount of time it will refresh.
 
-    Terminal-2:
-    - `python src/tests/test_api.py`
-    - this runs a loop which checks how many requests are allowed and what happens after rate-limit hits.
-    - whenever we changed it, need to restart the server from Terminal-1 and it's working.
+---
 
-## API endpoints:
+## Project Structure
 
-`get/`
-- rate limited endpoint which returns a greeting with client-ip
-
-Response (200 OK):
+```text
+.
+├── example.env
+├── pyproject.toml
+├── README.md
+└── src
+    ├── main.py
+    ├── classes
+    │   ├── Counter.py
+    │   ├── Settings.py
+    │   └── Status.py
+    ├── config
+    │   └── constants.py
+    ├── tests
+    │   └── test_api.py
+    └── utils
+        ├── db_connection.py
+        └── dependencies.py
 ```
+
+---
+
+## Setup and Installation
+
+Prerequisites
+ - Python 3.8+
+ - FastAPI
+ - SQLite3
+
+Installation
+
+```bash
+# clone the repository
+
+git clone <your_repository-url>
+cd <your-repo>
+```
+
+Running the server
+
+```bash
+uvicorn src.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+The server starts at `http://127.0.0.1:8000`
+
+---
+
+## API endpoints
+
+`get/` - rate limited (protected route) endpoint which returns a greeting with client-ip
+
+Response (200 OK)
+```text
 {"message":"Hello, user 127.0.0.1 !!"}
 ```
 
-Response (429 Too many requests):
-```
+Response (429 Too many requests)
+```text
 {"detail":"429 Too many requests"}
 ```
 
-`get/hello`
-- no rate limiting applied and it returns a message
+`get/hello` - no rate limiting (public route) applied and it returns a message
 
-Response (200 OK):
-```
+Response (200 OK)
+```text
 {"message": "Welcome to FastAPI tutorials!"}
 ```
 
-## How It Works:
+---
 
-1. Every request to a rate-limited route triggers the check_rate_limit FastAPI dependency.
-2. The dependency extracts the client IP and calls Counter.allow_request(ip).
-3. Counter looks up the IP in the SQLite rate_limits table:
+## How It Works
 
-    - New IP --> insert a row with request_count = 1 and the current timestamp. Allow.
-    - Within window, under limit --> increment request_count. Allow.
-    - Within window, at/over limit --> do nothing. Deny with HTTP 429.
-    - Window expired --> reset request_count = 1 and update window_start_time. Allow.
+1. **Detection**: When a request hits a protected route, the check_rate_limit dependency extracts the client.host IP.
+
+2. **Verification**: The Counter class queries the rate_limits table in rate_limiter.db.
+
+3. **Logic**:
+
+    ```text
+    Client Request
+        │
+        v
+    check_rate_limit (src/utils/dependency)
+        │
+        ├─> New IP?         -> Insert record, allow
+        ├─> Window expired? -> Reset counter, allow 
+        ├─> Under limit?    -> Increment counter, allow 
+        └─> Over limit?     -> Raise HTTP 429 
+    ```
+
+4. **Error Handling**: The Status class manages the HTTPException with a standardized detail message.
+
+---
+
+## Testing
+
+We can use the `test_api.py` script to verify the rate limiting functionality.
+
+```bash
+# in another terminal
+
+python src/tests/test_api.py
+```
+
+This script will send 25 consecutive requests to the server and report which were allowed and which were denied once the limit is reached.
