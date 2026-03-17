@@ -1,1 +1,1 @@
-DB_NAME = "rate_limiter.db"
+DB_NAME = "src/rate_limiter.db"
