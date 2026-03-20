@@ -13,13 +13,13 @@ app = FastAPI()
 
 
 @app.get("/", dependencies=[Depends(check_rate_limit)])  # Base API route
-def home(request: Request):
+def home(request: Request) -> dict[str, str]:
     client_ip = request.client.host
     return {"message": f"Hello, user {client_ip} !!"}
 
 
 @app.get("/hello")  # Hello API route
-def hello(request: Request):
+def hello(request: Request) -> dict[str, str]:
     client_ip = request.client.host
     logger.info(f"Endpoint /hello triggered by IP: {client_ip}")
     return {"message": "Welcome to FastAPI tutorials!"}
