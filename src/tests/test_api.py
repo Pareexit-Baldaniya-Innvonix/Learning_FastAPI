@@ -1,8 +1,7 @@
 import requests
 
 
-def test_api():
-    url = "http://127.0.0.1:8000"
+def test_api(url="http://127.0.0.1:8000") -> None:
     print(f"Starting rate limiting test on {url}")
 
     for i in range(25):
@@ -17,6 +16,8 @@ def test_api():
         except requests.exceptions.ConnectionError:
             print(f"Request {i+1}: Failed to connect to server at {url}")
             break
+
+    print("===== Test completed! =====")
 
 
 if __name__ == "__main__":
