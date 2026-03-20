@@ -8,7 +8,7 @@ from src.classes.Settings import settings
 from src.config.constants import LOG_APP
 
 # unified format (same as logging module)
-_LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+_LOG_FORMAT: str = "%(asctime)s %(name)s %(levelname)s %(message)s"
 _DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
 
 # mapping levels from environment variables to logging constants
@@ -28,7 +28,9 @@ LOGGING_CONFIG: dict[str, any] = {
     "version": 1,
     "disable_existing_loggers": False,  # keeps default loggers active so we can override them
     "formatters": {
-        "default": {
+        # json format for storing logs
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
             "format": _LOG_FORMAT,
             "datefmt": _DATE_FORMAT,
         },
@@ -36,13 +38,13 @@ LOGGING_CONFIG: dict[str, any] = {
     "handlers": {
         # printing logs to the terminal
         "console": {
-            "formatter": "default",
+            "formatter": "json",
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",  # send logs to terminal
         },
         # saving logs in an app.log file with 5MB limit and rotation
         "file": {
-            "formatter": "default",
+            "formatter": "json",
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_APP,
             "maxBytes": 5 * 1024 * 1024,  # 5MB
