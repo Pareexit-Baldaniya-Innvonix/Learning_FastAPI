@@ -8,7 +8,7 @@ from src.classes.Settings import settings
 from src.config.constants import LOG_APP
 
 # unified format (same as logging module)
-_LOG_FORMAT: str = "%(asctime)s %(name)s %(levelname)s %(message)s"
+_LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 _DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
 
 # mapping levels from environment variables to logging constants
@@ -22,6 +22,7 @@ LEVEL_MAP: dict[str, int] = {
 
 # determine log level based on settings, default is INFO
 TARGET_LEVEL: int = LEVEL_MAP.get(settings.LOG_LEVEL, logging.INFO)
+SELECTED_FORMATTER: str = "json" if settings.ENV == "PROD" else "standard"
 
 # centralized logging configuration dictionary
 LOGGING_CONFIG: dict[str, any] = {
@@ -34,17 +35,21 @@ LOGGING_CONFIG: dict[str, any] = {
             "format": _LOG_FORMAT,
             "datefmt": _DATE_FORMAT,
         },
+        "standard": {
+            "format": _LOG_FORMAT,
+            "datefmt": _DATE_FORMAT,
+        },
     },
     "handlers": {
         # printing logs to the terminal
         "console": {
-            "formatter": "json",
+            "formatter": SELECTED_FORMATTER,
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",  # send logs to terminal
         },
         # saving logs in an app.log file with 5MB limit and rotation
         "file": {
-            "formatter": "json",
+            "formatter": SELECTED_FORMATTER,
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_APP,
             "maxBytes": 5 * 1024 * 1024,  # 5MB
