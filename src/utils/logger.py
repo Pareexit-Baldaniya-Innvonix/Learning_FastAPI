@@ -22,13 +22,20 @@ LEVEL_MAP: dict[str, int] = {
 
 # determine log level based on settings, default is INFO
 TARGET_LEVEL: int = LEVEL_MAP.get(settings.LOG_LEVEL, logging.INFO)
+SELECTED_FORMATTER: str = "json" if settings.ENV == "PROD" else "standard"
 
 # centralized logging configuration dictionary
 LOGGING_CONFIG: dict[str, any] = {
     "version": 1,
     "disable_existing_loggers": False,  # keeps default loggers active so we can override them
     "formatters": {
-        "default": {
+        # json format for storing logs
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "format": _LOG_FORMAT,
+            "datefmt": _DATE_FORMAT,
+        },
+        "standard": {
             "format": _LOG_FORMAT,
             "datefmt": _DATE_FORMAT,
         },
@@ -36,13 +43,13 @@ LOGGING_CONFIG: dict[str, any] = {
     "handlers": {
         # printing logs to the terminal
         "console": {
-            "formatter": "default",
+            "formatter": SELECTED_FORMATTER,
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",  # send logs to terminal
         },
         # saving logs in an app.log file with 5MB limit and rotation
         "file": {
-            "formatter": "default",
+            "formatter": SELECTED_FORMATTER,
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_APP,
             "maxBytes": 5 * 1024 * 1024,  # 5MB
