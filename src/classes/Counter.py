@@ -55,7 +55,10 @@ class Counter:
                     (ip, current_time),
                 )
                 conn.commit()
-                logger.info("Request 1 Allowed: 200 Ok")
+                logger.info(
+                    "Request processed",
+                    extra={"request_id": 1, "client_ip": ip, "status": 200},
+                )
                 return True
 
             request_count, window_start_time = row
@@ -68,7 +71,10 @@ class Counter:
                     (current_time, ip),
                 )
                 conn.commit()
-                logger.info("Request 1 Allowed: 200 Ok")
+                logger.info(
+                    "Request Allowed",
+                    extra={"request_id": 1, "client_ip": ip, "status": 200},
+                )
                 return True
 
             # increment request_count
@@ -82,9 +88,15 @@ class Counter:
 
             # decide allow/deny based on the NEW count
             if new_count <= self.limit:
-                logger.info(f"Request {new_count} Allowed: 200 Ok")
+                logger.info(
+                    f"Request Allowed",
+                    extra={"request_id": new_count, "client_ip": ip, "status": 200},
+                )
                 return True
             else:
                 # request denied
-                logger.warning(f"Request {new_count} Denied: 429 Too Many Requests")
+                logger.warning(
+                    "Request Denied",
+                    extra={"request_id": new_count, "client_ip": ip, "status": 429},
+                )
                 return False
