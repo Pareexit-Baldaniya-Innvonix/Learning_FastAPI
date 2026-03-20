@@ -29,6 +29,17 @@ When the limit exceeded, algorithm automatically returns '429 Too Many Requests'
 
 ---
 
+## Configuration
+
+The application is highly configurable via environment variables.
+
+| Variable | Default | Description |
+| --- | :---: | --- |
+| REQUEST_PER_SECOND | 20 | Maximum requests allowed per 1-second window |
+| LOG_LEVEL | INFO | Logging verbosity (DEBUG, INFO, WARNING, ERROR, CRITICAL)|
+
+---
+
 ## Setup and Installation
 
 Prerequisites
@@ -80,9 +91,9 @@ Response (200 OK)
 
 ## How It Works
 
-1. **Detection**: When a request hits a protected route, the check_rate_limit dependency extracts the client.host IP.
+1. **Detection**: When a request hits a protected route, the `check_rate_limit` dependency extracts the client.host IP.
 
-2. **Verification**: The Counter class queries the rate_limits table in rate_limiter.db.
+2. **Verification**: The Counter class queries the rate_limits table in `rate_limiter.db`.
 
 3. **Logic**:
 
@@ -99,6 +110,8 @@ Response (200 OK)
     ```
 
 4. **Error Handling**: The Status class manages the HTTPException with a standardized detail message.
+
+5. **Logging**: All activity is logged to both the console and src/app.log with automatic rotation.
 
 ---
 
