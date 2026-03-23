@@ -14,8 +14,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         response = await call_next(request)
 
-        # check for route is "/hello"
-        if request.url.path == "/hello":
+        # check for route
+        if request.url.path:
             logger.info(
                 f"client_ip: {client_ip} visits {request.method} {request.url.path} status {response.status_code}"
             )
