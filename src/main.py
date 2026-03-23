@@ -21,7 +21,11 @@ def home(request: Request) -> dict[str, str]:
 @app.get("/hello")  # Hello API route
 def hello(request: Request) -> dict[str, str]:
     client_ip = request.client.host
+    method = "GET"
+    path = "/hello"
+    status = 200
     logger.info(
-        "Endpoint accessed", extra={"client_ip": client_ip, "endpoint": "/hello"}
+        f"client_ip {client_ip} visits {method} {path} status {status}",
+        extra={"client_ip": client_ip, "endpoint": "/hello"},
     )
     return {"message": "Welcome to FastAPI tutorials!"}

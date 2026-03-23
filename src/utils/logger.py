@@ -22,7 +22,7 @@ LEVEL_MAP: dict[str, int] = {
 
 # determine log level based on settings, default is INFO
 TARGET_LEVEL: int = LEVEL_MAP.get(settings.LOG_LEVEL, logging.INFO)
-SELECTED_FORMATTER: str = "json" if settings.ENV == "PROD" else "standard"
+SELECTED_FORMATTER: str = "standard" if settings.ENV == "development" else "json"
 
 # centralized logging configuration dictionary
 LOGGING_CONFIG: dict[str, any] = {
