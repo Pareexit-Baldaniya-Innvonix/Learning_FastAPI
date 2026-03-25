@@ -28,5 +28,4 @@ EXPOSE 8000
 RUN mkdir -p src
 
 # use uv to run the application
-# use 'uv run' to ensure we use the synced virtual environment
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
