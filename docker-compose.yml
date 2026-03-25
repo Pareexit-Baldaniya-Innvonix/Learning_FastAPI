@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # This keeps your rate-limiter database persistent even if the container is deleted
+      - ./src:/app/src
+    environment:
+      - ENV=production
+      - REQUEST_PER_SECOND=20
