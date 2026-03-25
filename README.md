@@ -85,7 +85,7 @@ cd <your-repo>
 ```bash
 # for docker
 
-docker compose up --build  # for starting the docker container
+docker compose up -d  # for starting the docker container with detach
 
 docker compose down # for removing the docker container 
 ```
