@@ -85,9 +85,11 @@ cd <your-repo>
 ```bash
 # for docker
 
-docker compose up -d  # for starting the docker container with detach
+docker compose up -d  # for creating and starting the docker container with detach
 
-docker compose down # for removing the docker container 
+docker compose stop  # for stoping the container
+
+docker compose down  # for removing the docker container 
 ```
 
 ----- OR -----
