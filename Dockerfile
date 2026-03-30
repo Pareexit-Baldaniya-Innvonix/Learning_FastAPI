@@ -9,7 +9,9 @@ WORKDIR /app
 
 # enable bytecode compilation and set environment variables
 ENV UV_COMPILE_BYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    # for activating virtual environment
+    PATH="/app/.venv/bin:$PATH" 
 
 # copy project configuration files first to leverage Docker cache
 COPY pyproject.toml uv.lock ./
@@ -21,11 +23,8 @@ RUN uv sync --frozen --no-install-project --no-dev
 # copy rest of the application code
 COPY . .
 
-# FastAPI port
-EXPOSE 8000
-
 # create the directory for the SQLite DB if it doesn't exist
 RUN mkdir -p src
 
 # use uv to run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
