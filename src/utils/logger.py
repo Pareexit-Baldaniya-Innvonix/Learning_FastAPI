@@ -22,11 +22,6 @@ LEVEL_MAP: dict[str, int] = {
 # determine log level based on settings, default is INFO
 TARGET_LEVEL: int = LEVEL_MAP.get(settings.LOG_LEVEL, logging.INFO)
 
-if settings.ENV == "production":
-    TARGET_LEVEL = logging.INFO
-else:
-    TARGET_LEVEL = logging.DEBUG
-
 # Logic: Use JSON logs in production, Standard for local dev
 SELECTED_FORMATTER: str = "json" if settings.ENV == "production" else "standard"
 
