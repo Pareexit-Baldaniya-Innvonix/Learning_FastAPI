@@ -38,65 +38,60 @@ class Counter:
     def allow_request(self, ip: str) -> bool:
         current_time = time.time()
 
-        with sqlite3.connect(DB_NAME) as conn:
-            # inserting record in the database table
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT request_count, window_start_time FROM rate_limits WHERE client_ip = ?",
-                (ip,),
-            )
-            row = cursor.fetchone()
-
-            # new IP
-            if row is None:
-                logger.info(f"New IP {ip} at {current_time}.")
+        try:
+            with sqlite3.connect(DB_NAME) as conn:
+                # inserting record in the database table
+                cursor = conn.cursor()
                 cursor.execute(
-                    "INSERT INTO rate_limits (client_ip, request_count, window_start_time) VALUES (?, 1, ?)",
-                    (ip, current_time),
+                    "SELECT request_count, window_start_time FROM rate_limits WHERE client_ip = ?",
+                    (ip,),
                 )
+                row = cursor.fetchone()
+
+                # new IP
+                if row is None:
+                    new_count = 1
+                    logger.info(f"First time request from IP: {ip}")
+                    cursor.execute(
+                        "INSERT INTO rate_limits (client_ip, request_count, window_start_time) VALUES (?, ?, ?)",
+                        (ip, new_count, current_time),
+                    )
+                else:
+
+                    request_count, window_start_time = row
+
+                    # reset the window
+                    if current_time - window_start_time > self.seconds:
+                        new_count = 1
+                        logger.debug(f"Window reset for {ip} at {current_time}.")
+                        cursor.execute(
+                            "UPDATE rate_limits SET request_count = ?, window_start_time = ? WHERE client_ip = ?",
+                            (new_count, current_time, ip),
+                        )
+                    else:
+                        # increment request_count
+                        new_count = request_count + 1
+                        cursor.execute(
+                            "UPDATE rate_limits SET request_count = ? WHERE client_ip = ?",
+                            (new_count, ip),
+                        )
                 conn.commit()
-                logger.info(
-                    "Request 1 processed",
-                    extra={"client_ip": ip, "status": 200},
-                )
-                return True
 
-            request_count, window_start_time = row
+                # decide allow/deny based on the NEW count
+                if new_count > self.limit:
+                    # request denied
+                    logger.warning(
+                        f"Request {new_count} Denied",
+                        extra={"client_ip": ip, "status": 429},
+                    )
+                    return False
 
-            # reset the window
-            if current_time - window_start_time > self.seconds:
-                logger.info(f"Window reset for {ip} at {current_time}.")
-                cursor.execute(
-                    "UPDATE rate_limits SET request_count = 1, window_start_time = ? WHERE client_ip = ?",
-                    (current_time, ip),
-                )
-                conn.commit()
-                logger.info(
-                    "Request 1 Allowed",
-                    extra={"client_ip": ip, "status": 200},
-                )
-                return True
-
-            # increment request_count
-            request_count = row[0]
-            new_count = request_count + 1
-            cursor.execute(
-                "UPDATE rate_limits SET request_count = ? WHERE client_ip = ?",
-                (new_count, ip),
-            )
-            conn.commit()
-
-            # decide allow/deny based on the NEW count
-            if new_count <= self.limit:
                 logger.info(
                     f"Request {new_count} Allowed",
                     extra={"client_ip": ip, "status": 200},
                 )
                 return True
-            else:
-                # request denied
-                logger.warning(
-                    f"Request {new_count} Denied",
-                    extra={"client_ip": ip, "status": 429},
-                )
-                return False
+
+        except sqlite3.Error as e:
+            logger.error(f"SQLite error: {e}", exc_info=True)
+            return True
