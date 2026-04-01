@@ -80,7 +80,11 @@ LOGGING_CONFIG: dict[str, any] = {
 
 # applies dictionary to the entire project
 def setup_logging() -> None:
-    dictConfig(LOGGING_CONFIG)
+    try:
+        dictConfig(LOGGING_CONFIG)
+    except Exception as error:
+        logging.basicConfig(level=logging.INFO)
+        logging.error(f"Failed to load LOGGING_CONFIG: {error}")
 
 
 # returns a logger instance for a specific module
