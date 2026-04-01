@@ -1,5 +1,6 @@
 services:
   api:
+    container_name: request_api_container
     build: .
     ports:
       - "8000:8000"
