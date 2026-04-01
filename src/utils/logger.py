@@ -31,7 +31,7 @@ LOGGING_CONFIG: dict[str, any] = {
     "disable_existing_loggers": False,  # keeps default loggers active so we can override them
     "formatters": {
         "json": {
-            "()": "pythonjsonlogger.json.JsonFormatter",
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "format": _LOG_FORMAT,
             "datefmt": _DATE_FORMAT,
         },
